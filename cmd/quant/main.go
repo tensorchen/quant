@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"github.com/tensorchen/quant/env"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/tensorchen/quant/handler"
@@ -19,5 +22,6 @@ func main() {
 	r := mux.NewRouter()
 	r.Handle("/tradingview", h)
 
-	logger.Logger().Fatal(http.ListenAndServe(":16666", r))
+	addr := fmt.Sprint(":" + os.Getenv(env.TquantPortKey))
+	logger.Logger().Fatal(http.ListenAndServe(addr, r))
 }
