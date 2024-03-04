@@ -36,14 +36,14 @@ export LONGPORT_ACCESS_TOKEN=""
 
 ```json
 {
-  "token": "",
+  "token": "b38f9ff3-c4f5-4de3-b170-86cc3295e15b",
   "trade": {
-    "ticker": "",
-    "exchange":"",
+    "ticker": "{{ticker}}",
+    "exchange":"{{exchange}}",
     "strategy": {
       "order": {
-        "action": "",
-        "contracts": ""
+        "action": "{{strategy.order.action}}",
+        "contracts": "{{strategy.order.contracts}}"
       }
     }
   }
