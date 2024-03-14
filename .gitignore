@@ -19,3 +19,8 @@
 
 # Go workspace file
 go.work
+
+cmd/quant/quant
+cmd/quant/quant.log
+cmd/quant/config.yaml
+example.http

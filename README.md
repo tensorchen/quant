@@ -8,20 +8,19 @@ go install github.com/tensorchen/quant/cmd/quant@latest
 
 ## 配置
 
-```bash
-# 设置服务启动监听的端口号
-export TQUANT_PORT=""
-# 设置量化交易密钥
-export TQUANT_TOKEN=""
+```yaml
+tquant:
+  port:
+  token:
 
-# 将交易信息推送到discord的相关配置
-export DISCORD_ID=""
-export DISCORD_TOKEN=""
+long_bridge:
+  app_key:
+  app_secret:
+  access_token:
 
-# 配置长桥证券的相关配置
-export LONGPORT_APP_KEY=""
-export LONGPORT_APP_SECRET=""
-export LONGPORT_ACCESS_TOKEN=""
+discord:
+  id:
+  token:
 ```
 
 ## 使用
@@ -36,7 +35,7 @@ export LONGPORT_ACCESS_TOKEN=""
 
 ```json
 {
-  "token": "b38f9ff3-c4f5-4de3-b170-86cc3295e15b",
+  "token": "{{token}}",
   "trade": {
     "ticker": "{{ticker}}",
     "exchange":"{{exchange}}",

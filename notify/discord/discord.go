@@ -2,11 +2,9 @@ package discord
 
 import (
 	"context"
-	"os"
 	"strconv"
 
 	"github.com/tensorchen/quant/entity"
-	"github.com/tensorchen/quant/env"
 	"github.com/tensorchen/quant/notify"
 
 	"github.com/disgoorg/disgo/discord"
@@ -25,11 +23,11 @@ func (n *Notifier) Notify(ctx context.Context, information entity.Information) e
 	return err
 }
 
-func New() (*Notifier, error) {
-	id, err := strconv.Atoi(os.Getenv(env.DiscordIDKey))
+func New(discordID, discordToken string) (*Notifier, error) {
+	id, err := strconv.Atoi(discordID)
 	if err != nil {
 		return nil, err
 	}
-	cli := webhook.New(snowflake.ID(id), os.Getenv(env.DiscordTokenKey))
+	cli := webhook.New(snowflake.ID(id), discordToken)
 	return &Notifier{cli: cli}, nil
 }

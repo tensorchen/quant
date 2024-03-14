@@ -1,0 +1,12 @@
+tquant:
+  port:
+  token:
+
+long_bridge:
+  app_key:
+  app_secret:
+  access_token:
+
+discord:
+  id:
+  token:

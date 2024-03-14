@@ -52,8 +52,8 @@ func (lb *LongBridge) SubmitOrder(ctx context.Context, tradeOrder entity.Trade) 
 	return err
 }
 
-func New() (*LongBridge, error) {
-	conf, err := config.New()
+func New(appKey, appSecret, accessToken string) (*LongBridge, error) {
+	conf, err := config.New(config.WithConfigKey(appKey, appSecret, accessToken))
 	if err != nil {
 		return nil, err
 	}

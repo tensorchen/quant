@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+
+	"github.com/tensorchen/quant/config"
 	"github.com/tensorchen/quant/entity"
-	"github.com/tensorchen/quant/env"
 	"github.com/tensorchen/quant/logger"
 	"github.com/tensorchen/quant/notify"
 	discordnotifier "github.com/tensorchen/quant/notify/discord"
 	"github.com/tensorchen/quant/stock"
 	"github.com/tensorchen/quant/stock/longbridge"
-	"io"
-	"net/http"
-	"os"
 
 	"github.com/disgoorg/disgo/discord"
 )
@@ -49,6 +49,8 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	logger.Logger().Info("交易请求开始: ", string(body))
+
 	var rsp Response
 	if err = json.Unmarshal(body, &rsp); err != nil {
 		handleError(&info, writer, errors.New(err.Error()+" : "+string(body)))
@@ -65,6 +67,8 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 		handleError(&info, writer, err)
 		return
 	}
+
+	logger.Logger().Info("交易请求结束: ", rsp.Trade)
 
 	info.Fields = []discord.EmbedField{
 		{
@@ -98,17 +102,14 @@ func newTrue() *bool {
 	return &t
 }
 
-func New() (http.Handler, error) {
+func New(cfg config.Config) (http.Handler, error) {
 
-	//stockName := os.Getenv(env.TquantStockKey)
-	//notifyName := os.Getenv(env.TquantNotifyKey)
-
-	stock, err := longbridge.New()
+	stock, err := longbridge.New(cfg.LongBridge.AppKey, cfg.LongBridge.AppSecret, cfg.LongBridge.AccessToken)
 	if err != nil {
 		return nil, err
 	}
 
-	notifier, err := discordnotifier.New()
+	notifier, err := discordnotifier.New(cfg.Discord.ID, cfg.Discord.Token)
 	if err != nil {
 		return nil, err
 	}
@@ -116,6 +117,6 @@ func New() (http.Handler, error) {
 	return &Handler{
 		stock:    stock,
 		notifier: notifier,
-		token:    os.Getenv(env.TquantTokenKey),
+		token:    cfg.Tquant.Token,
 	}, nil
 }
