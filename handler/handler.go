@@ -18,7 +18,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-type Response struct {
+type Request struct {
 	Token string       `json:"token"`
 	Trade entity.Trade `json:"trade"`
 }
@@ -36,8 +36,11 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	ctx := request.Context()
 	var info entity.Information
 	info.Color = 12397228
+	var fields []discord.EmbedField
+
 	defer func() {
 		info.Title = "星火计划"
+		info.Fields = fields
 		if err := h.notifier.Notify(ctx, info); err != nil {
 			logger.Logger().Error(err)
 		}
@@ -51,39 +54,49 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 
 	logger.Logger().Info("交易请求开始: ", string(body))
 
-	var rsp Response
-	if err = json.Unmarshal(body, &rsp); err != nil {
+	clearedBody, err := clearTokenValue(body)
+	if err != nil {
+		handleError(&info, writer, errors.New(err.Error()))
+		return
+	}
+
+	info.Footer = &discord.EmbedFooter{
+		Text: "请求参数：" + string(clearedBody),
+	}
+
+	var req Request
+	if err = json.Unmarshal(body, &req); err != nil {
 		handleError(&info, writer, errors.New(err.Error()+" : "+string(body)))
 		return
 	}
 
-	if rsp.Token != h.token {
-		err = errors.New(fmt.Sprintf("token [%s] 校验失败", rsp.Token))
+	if req.Token != h.token {
+		err = errors.New(fmt.Sprintf("token [%s] 校验失败", req.Token))
 		handleError(&info, writer, err)
 		return
 	}
 
-	if err := h.stock.SubmitOrder(ctx, rsp.Trade); err != nil {
+	if err := h.stock.SubmitOrder(ctx, req.Trade); err != nil {
 		handleError(&info, writer, err)
 		return
 	}
 
-	logger.Logger().Info("交易请求结束: ", rsp.Trade)
+	logger.Logger().Info("交易请求结束: ", req.Trade)
 
-	info.Fields = []discord.EmbedField{
+	fields = []discord.EmbedField{
 		{
 			Name:   "股票",
-			Value:  rsp.Trade.Ticker,
+			Value:  req.Trade.Ticker,
 			Inline: newTrue(),
 		},
 		{
 			Name:   "操作",
-			Value:  rsp.Trade.Strategy.Order.Action,
+			Value:  req.Trade.Strategy.Order.Action,
 			Inline: newTrue(),
 		},
 		{
 			Name:   "数量",
-			Value:  rsp.Trade.Strategy.Order.Contracts,
+			Value:  req.Trade.Strategy.Order.Contracts,
 			Inline: newTrue(),
 		},
 	}
@@ -119,4 +132,17 @@ func New(cfg config.Config) (http.Handler, error) {
 		notifier: notifier,
 		token:    cfg.Tquant.Token,
 	}, nil
+}
+
+func clearTokenValue(data []byte) ([]byte, error) {
+	var m map[string]interface{}
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+
+	if _, ok := m["token"]; ok {
+		m["token"] = ""
+	}
+
+	return json.MarshalIndent(m, "", "\t")
 }
