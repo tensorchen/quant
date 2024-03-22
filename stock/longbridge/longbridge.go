@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"strconv"
 
 	"github.com/tensorchen/quant/entity"
@@ -40,11 +41,18 @@ func (lb *LongBridge) SubmitOrder(ctx context.Context, tradeOrder entity.Trade) 
 		return errors.New(fmt.Sprintf("contracts [%s] [%v]格式错误", order.Contracts, err))
 	}
 
+	price, err := decimal.NewFromString(order.Price)
+	if err != nil {
+		return errors.New(fmt.Sprintf("contracts [%s] [%v]格式错误", order.Contracts, err))
+	}
+
 	submitOrder := &trade.SubmitOrder{
 		Symbol:            tradeOrder.Ticker + ".US",
-		OrderType:         trade.OrderTypeMO,
+		OrderType:         trade.OrderTypeLO,
+		SubmittedPrice:    price,
 		Side:              side,
 		SubmittedQuantity: uint64(contracts),
+		OutsideRTH:        trade.OutsideRTHAny,
 		TimeInForce:       trade.TimeTypeDay,
 	}
 

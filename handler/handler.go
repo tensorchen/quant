@@ -99,6 +99,11 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 			Value:  req.Trade.Strategy.Order.Contracts,
 			Inline: newTrue(),
 		},
+		{
+			Name:   "价格",
+			Value:  req.Trade.Strategy.Order.Price,
+			Inline: newTrue(),
+		},
 	}
 
 	info.Description = "✅ 交易执行成功" + ":scroll: "
