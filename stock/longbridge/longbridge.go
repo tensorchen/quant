@@ -45,6 +45,7 @@ func (lb *LongBridge) SubmitOrder(ctx context.Context, tradeOrder entity.Trade) 
 	if err != nil {
 		return errors.New(fmt.Sprintf("contracts [%s] [%v]格式错误", order.Contracts, err))
 	}
+	price.StringFixed(2)
 
 	submitOrder := &trade.SubmitOrder{
 		Symbol:            tradeOrder.Ticker + ".US",
