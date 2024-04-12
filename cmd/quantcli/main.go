@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"log/slog"
 	"os"
 
 	quantcfg "github.com/tensorchen/quant/config"
@@ -41,7 +40,7 @@ func main() {
 
 	for _, sps := range rsp {
 		for _, sp := range sps.Positions {
-			slog.Any("stock", sp)
+			log.Println(sp)
 		}
 	}
 }

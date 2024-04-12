@@ -24,4 +24,5 @@ cmd/quant/quant
 cmd/quant/quant.log
 cmd/quant/config.yaml
 cmd/quantcli/quantcli
+cmd/quantcli/config.yaml
 example.http

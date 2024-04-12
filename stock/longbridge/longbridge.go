@@ -4,15 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tensorchen/quant/logger"
 	"strconv"
 
-	"github.com/shopspring/decimal"
 	"github.com/tensorchen/quant/entity"
+	"github.com/tensorchen/quant/logger"
 	"github.com/tensorchen/quant/stock"
 
 	"github.com/longportapp/openapi-go/config"
 	"github.com/longportapp/openapi-go/trade"
+	"github.com/shopspring/decimal"
 )
 
 var _ stock.Stock = (*LongBridge)(nil)
@@ -100,12 +100,17 @@ func (lb *LongBridge) judgeNoop(ctx context.Context, tradeOrder entity.Trade) (b
 			return true, errors.New(fmt.Sprintf("查询股票持仓 [%s] 信息不匹配", tradeOrder.Ticker+".US"))
 		}
 
-		quantity, err := strconv.Atoi(stockInfo.Positions[0].Quantity)
+		stockPosition := stockInfo.Positions[0]
+		logger.Logger().Infof("查询持仓信息 [%s] [%+v]", tradeOrder.Ticker, stockPosition)
+
+		if stockPosition.Symbol != tradeOrder.Ticker+".US" {
+			return true, errors.New(fmt.Sprintf("查询股票持仓数据异常，查询 [%s] 返回 [%s] ", tradeOrder.Ticker+".US", stockPosition.Symbol))
+		}
+
+		quantity, err := strconv.Atoi(stockPosition.Quantity)
 		if err != nil {
 			return true, err
 		}
-
-		logger.Logger().Infof("查询持仓信息 [%s] [%d]", tradeOrder.Ticker, quantity)
 
 		if action == "buy" && quantity >= 0 {
 			return true, nil
