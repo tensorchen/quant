@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tensorchen/quant/logger"
 	"strconv"
 
 	"github.com/shopspring/decimal"
@@ -103,6 +104,8 @@ func (lb *LongBridge) judgeNoop(ctx context.Context, tradeOrder entity.Trade) (b
 		if err != nil {
 			return true, err
 		}
+
+		logger.Logger().Infof("查询持仓信息 [%s] [%d]", tradeOrder.Ticker, quantity)
 
 		if action == "buy" && quantity >= 0 {
 			return true, nil
