@@ -23,4 +23,5 @@ go.work
 cmd/quant/quant
 cmd/quant/quant.log
 cmd/quant/config.yaml
+cmd/quantcli/quantcli
 example.http
