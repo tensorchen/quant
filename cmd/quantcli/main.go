@@ -33,7 +33,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	rsp, err := tc.StockPositions(context.Background(), []string{"ARM.US"})
+	rsp, err := tc.StockPositions(context.Background(), []string{})
 	if err != nil {
 		log.Fatalln(err)
 	}

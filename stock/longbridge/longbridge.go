@@ -86,30 +86,24 @@ func (lb *LongBridge) judgeNoop(ctx context.Context, tradeOrder entity.Trade) (b
 	}
 
 	if marketPosition == "flat" {
-		stockPositionChannels, err := lb.tc.StockPositions(ctx, []string{tradeOrder.Ticker + ".US"})
+		stockPositionChannels, err := lb.tc.StockPositions(ctx, []string{})
 		if err != nil {
 			return true, err
 		}
 
-		if len(stockPositionChannels) == 0 {
-			return true, errors.New(fmt.Sprintf("查询股票持仓 [%s] 信息不匹配", tradeOrder.Ticker+".US"))
-		}
+		ticker := tradeOrder.Ticker + ".US"
 
-		stockInfo := stockPositionChannels[0]
-		if len(stockInfo.Positions) == 0 {
-			return true, errors.New(fmt.Sprintf("查询股票持仓 [%s] 信息不匹配", tradeOrder.Ticker+".US"))
-		}
-
-		stockPosition := stockInfo.Positions[0]
-		logger.Logger().Infof("查询持仓信息 [%s] [%+v]", tradeOrder.Ticker, stockPosition)
-
-		if stockPosition.Symbol != tradeOrder.Ticker+".US" {
-			return true, errors.New(fmt.Sprintf("查询股票持仓数据异常，查询 [%s] 返回 [%s] ", tradeOrder.Ticker+".US", stockPosition.Symbol))
-		}
-
-		quantity, err := strconv.Atoi(stockPosition.Quantity)
-		if err != nil {
-			return true, err
+		var quantity int
+		for _, spc := range stockPositionChannels {
+			for _, sp := range spc.Positions {
+				if sp.Symbol == ticker {
+					quantity, err = strconv.Atoi(sp.Quantity)
+					if err != nil {
+						return true, err
+					}
+					logger.Logger().Infof("查询持仓信息 [%s] 持有 [%d] [%+v]", ticker, quantity, sp)
+				}
+			}
 		}
 
 		if action == "buy" && quantity >= 0 {
